@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "year": 2025,
+  "events": [
+    { "id": "nyd", "name": "元旦", "type": "法定节假日", "start": "2025-01-01", "end": "2025-01-01", "priority": 80, "enabled": true },
+    { "id": "spring", "name": "春节假期", "type": "法定节假日", "start": "2025-01-28", "end": "2025-02-04", "priority": 90, "enabled": true },
+    { "id": "qingming", "name": "清明假期", "type": "法定节假日", "start": "2025-04-04", "end": "2025-04-06", "priority": 80, "enabled": true },
+    { "id": "labor", "name": "劳动节假期", "type": "法定节假日", "start": "2025-05-01", "end": "2025-05-05", "priority": 80, "enabled": true },
+    { "id": "duanwu", "name": "端午假期", "type": "法定节假日", "start": "2025-05-31", "end": "2025-06-02", "priority": 80, "enabled": true },
+    { "id": "nday", "name": "国庆中秋假期", "type": "法定节假日", "start": "2025-10-01", "end": "2025-10-08", "priority": 90, "enabled": true }
+  ]
+}

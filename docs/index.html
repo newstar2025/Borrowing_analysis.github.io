@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>图书借阅可视分析</title>
+  <script>
+    (function () {
+      var parts = location.pathname.split("/").filter(Boolean);
+      if (location.hostname.endsWith("github.io") && parts.length > 0 && parts[0] !== "index.html") {
+        var base = document.createElement("base");
+        base.href = "/" + parts[0] + "/";
+        document.head.appendChild(base);
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="vendor/d3.min.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div>
+
+        <h1>图书借阅可视分析系统</h1>
+        <p class="subtitle">图表可点击联动 — 人群/类别/时段/星期等筛选将同步热力日历与各画像图</p>
+      </div>
+      <div class="hero-meta">
+        <div class="crumb" id="crumb">全部馆点 · 全年</div>
+        <div id="filterBar" class="filter-bar hidden"></div>
+        <div class="meta-row">
+          <span>筛选借阅 <strong id="fltCount">—</strong></span>
+          <span>全量 <strong id="allCount">—</strong></span>
+          <span id="loadStatus">加载中…</span>
+        </div>
+        <button type="button" class="btn" id="btnReset">重置全部选择</button>
+      </div>
+    </header>
+
+    <div class="app-layout">
+      <aside class="sidebar">
+        <section class="card lib-panel">
+          <div class="card-head">
+            <h2>馆点图例</h2>
+            <span class="hint">大类 → 二级馆名</span>
+          </div>
+          <div class="lib-type-row" id="libTypeLegend"></div>
+          <div class="lib-name-row" id="libNameLegend"></div>
+        </section>
+
+        <section class="card holiday-panel">
+          <div class="card-head">
+            <h2>节假日设置</h2>
+            
+          </div>
+          <div id="holidayPanel"></div>
+        </section>
+
+        <section class="card bill-panel">
+          <div class="card-head">
+            <h2>阅读账单</h2>
+            <span class="hint">输入读者编号生成年度账单</span>
+          </div>
+          <div class="bill-search">
+            <input type="number" id="billRid" placeholder="读者编号，如 3110" min="1" />
+            <div class="bill-search-actions">
+              <button type="button" class="btn btn-sm" id="btnBillGen">生成账单</button>
+              <button type="button" class="btn btn-sm btn-ghost" id="btnBillRandom">随机</button>
+            </div>
+          </div>
+          <p class="bill-hint" id="billSearchHint"></p>
+          <div class="bill-hot" id="billHotReaders"></div>
+        </section>
+      </aside>
+
+      <main class="main-content">
+        <section class="card calendar-card">
+          <div class="card-head">
+            <h2>2025 十二个月借阅热力日历</h2>
+            <span class="hint">矩形日格 · 节假日六边形 · 点击月/日联动下方图表</span>
+          </div>
+          <div id="calHeat" class="chart-host calendar-host"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>时段分布</h2>
+            <span class="hint" id="hourHint">默认：全年小时合计</span>
+          </div>
+          <h3 id="hourTitle">全年 · 小时合计</h3>
+          <div id="hourChart" class="chart-host mid"></div>
+        </section>
+
+        <section class="grid-3">
+          <article class="card">
+            <div class="card-head">
+              <h2>每周哪天最忙</h2>
+              <span class="hint" id="dowHint">全年合计 · 点击月份显示当月周平均</span>
+            </div>
+            <div id="dowChart" class="chart-host mid"></div>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h2>借阅河流图</h2>
+              <span class="hint" id="riverHint">默认全年 · 点月名/日格切换粒度</span>
+            </div>
+            <div id="riverChart" class="chart-host mid"></div>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h2>年龄 × 类目关联</h2>
+              <span class="hint">点击格子筛选交叉人群 · 联动全页</span>
+            </div>
+            <div id="parallelChart" class="chart-host mid"></div>
+          </article>
+        </section>
+
+        <section class="grid-3">
+          <article class="card">
+            <div class="card-head">
+              <h2>人群分布</h2>
+              <span class="hint">点击雷达点筛选 · 观察该人群活跃日期/时段</span>
+            </div>
+            <div id="crowdChart" class="chart-host mid"></div>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h2>图书类别（中图法）</h2>
+              <span class="hint">条形 + ★热度 · 随月/日联动</span>
+            </div>
+            <div id="clcChart" class="chart-host mid"></div>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h2>出借图书类别</h2>
+              <span class="hint">异形图例 · 随月/日联动</span>
+            </div>
+            <div id="itemChart" class="chart-host mid"></div>
+          </article>
+        </section>
+
+        <section class="grid-3">
+          <article class="card">
+            <div class="card-head">
+              <h2>图书出版年份</h2>
+              <span class="hint">随月/日联动 · 近3年高亮</span>
+            </div>
+            <div id="yearChart" class="chart-host mid"></div>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h2>热门出版社</h2>
+              <span class="hint">星级热度 · 随月/日联动</span>
+            </div>
+            <div id="pubChart" class="chart-host mid"></div>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h2>热门作者</h2>
+              <span class="hint">星级热度 · 随月/日联动</span>
+            </div>
+            <div id="authorChart" class="chart-host mid"></div>
+          </article>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>热门书名 Top20</h2>
+            <span class="hint">随馆点/月/日联动 · 悬停看借阅与星级</span>
+          </div>
+          <div id="titleChart" class="chart-host mid"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="billOverlay" class="bill-overlay hidden" aria-hidden="true">
+    <div class="bill-modal">
+      <div class="bill-toolbar no-print">
+        <button type="button" class="btn btn-sm" id="btnBillPrint">保存 / 打印</button>
+        <button type="button" class="btn btn-sm btn-ghost" id="btnBillClose">关闭</button>
+      </div>
+      <div id="billPaper" class="bill-paper"></div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/holidays.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/reader-bill.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
