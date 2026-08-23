@@ -178,39 +178,6 @@ web2/
 
 ---
 
-## 本地运行
-
-### 环境要求
-
-- Python 3.8+
-- 已清洗数据：`d:\Z_ST\data\fact_loan.parquet`（或修改 `export_slim.py` 中路径）
-
-### 步骤
-
-```bash
-# 1. 导出前端数据（数据更新时执行）
-python d:\Z_ST\web2\export_slim.py
-
-# 2. 启动服务
-python d:\Z_ST\web2\server.py
-```
-
-浏览器访问：**http://127.0.0.1:8060**
-
-健康检查：`http://127.0.0.1:8060/api/health`
-
----
-
-## 发布到 GitHub Pages
-
-详见 **[DEPLOY_GITHUB.md](DEPLOY_GITHUB.md)**。
-
-```bash
-python prepare_pages.py   # 生成本地 docs/（CI 部署时会自动执行）
-git push                  # 推送到 main 触发 Actions 部署
-```
-
----
 
 ## 数据字段说明（fact_slim 展开后）
 
@@ -230,16 +197,13 @@ git push                  # 推送到 main 触发 Actions 部署
 
 ## 隐私与安全提示
 
-- 数据集含 **读者编号** 及人口学特征，**公开仓库或公网 Pages 可被下载与检索**。
-- 「阅读账单」可按编号查询个人借阅明细，部署前请评估授权与脱敏需求。
 - 竞赛数据使用须遵守主办方开放数据协议与相关法律法规。
 
 ---
 
-## 版本与作者
+## 其他信息
 
-- 系统版本：**web2**（独立单页联动分析）
-- 数据：**第十一届上海图书馆开放数据竞赛** 官方数据集
+- - 数据：**第十一届上海图书馆开放数据竞赛** 官方数据集
 - 在线演示：https://newstar2025.github.io/Borrowing_analysis.github.io/
 
-如有问题或改进建议，欢迎在 GitHub 仓库提交 Issue。
+
